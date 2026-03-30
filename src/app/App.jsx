@@ -1,24 +1,20 @@
-import {Routes, Route, Link} from "react-router-dom"
+import {Routes, Route} from "react-router-dom"
 import Home from "../pages/Home"
 import Login from "../pages/Login"
 import PostDetails from "../pages/PostDetails"
 import Posts from "../pages/Posts"
 import { Layout } from "./Layout"
-//hh
 
 function App() {
   return (
-    <>
-      <Routes>
+    <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="posts" element={<Posts />} />
           <Route path="posts/:id" element={<PostDetails />} />
           <Route path="login" element={<Login />} />
         </Route>
-      </Routes>
-    </>
-    
+    </Routes>
   )
 }
 

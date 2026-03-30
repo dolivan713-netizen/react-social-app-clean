@@ -1,4 +1,4 @@
-import { useEffect, useState,} from "react";
+import { useEffect, useState, useRef} from "react";
 import { postService } from '../services/postService';
 import PostList from "../components/post/PostList";
 import Button from "../components/ui/Button";
@@ -7,13 +7,16 @@ import useFetch from "../hooks/useFetch";
 
 export default function Posts() {
     const [isOpen, setIsOpen] = useState(false);
-    const [posts, setPosts] = useState([])
+    const [posts, setPosts] = useState([]);
+    const isInitialized = useRef(false);
     const {data, error, loading} = useFetch(() => postService.getPosts());
+    
 
     useEffect(() => {
-        if (data && posts.length === 0) setPosts(data)
-    }, [data])
-
+        if(data && !isInitialized.current) {
+            setPosts(data)
+            isInitialized.current = true
+        } },[data])
     function openModal() {
         setIsOpen(true)
     }
@@ -29,6 +32,7 @@ export default function Posts() {
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>
+    if (posts.length === 0) return <p>Not posts</p>
 
     return (
         <div>
@@ -37,10 +41,7 @@ export default function Posts() {
             posts={posts || []}
             onDelete={deletePost}
         />
-        {/* <SearchUsers /> */}
-        <Button
-            onOpen={openModal}
-        />
+        <Button onOpen={openModal} />
         <Modal
             isOpen={isOpen}
             onClose={closeModal}

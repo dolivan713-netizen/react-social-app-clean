@@ -36,10 +36,12 @@ export default function PostList({posts, onDelete}) {
     const totalPages = Math.ceil(processedPosts.length / LIMIT)
 
     const handleObserver = useCallback(() => {
-        if (page < totalPages) {
-            setPage(prev => prev + 1)
-        }
-    }, [page, totalPages])
+        setPage(prev => {
+            if (prev < totalPages) { 
+                return prev + 1
+            } return prev
+        })
+    },[totalPages])
     const observe = useObserver(handleObserver)
 
     useEffect(() => {
@@ -66,29 +68,18 @@ export default function PostList({posts, onDelete}) {
                 type="text"
                 placeholder="Search..." 
             />
-            {posts.length > 0 && processedPosts.length === 0 && <p>Not found</p>}
             <ul className="post-list">
             {paginatedPosts.map((post, index) => {
-                //const params = useParams()
-
-                if (index === paginatedPosts.length - 1) {
+                const isLastElement = index === paginatedPosts.length - 1;
                     return (
-                    <li ref={lastElementRef} key={post.id}>
+                    <li ref={isLastElement ? lastElementRef : null}
+                        key={post.id}
+                    >
                         <p>{post.id}</p>
                         <p>{post.title}</p>
                         <p>{post.body}</p>
-                        <button onClick={() => onDelete(post.id)}>Delete</button> 
-                    </li>
-                    )
-                }
-                return (
-                    <li key={post.id}>
-                        <p>{post.id}</p>
-                        <p>{post.title}</p>
-                        <p>{post.body}</p>
-                        {/* <button onClick={() => console.log(params)}></button> */}
                         <button onClick={() => onDelete(post.id)}>Delete</button>
-                        <button onClick={() => navigate(`/posts/${post.id}`)}>Open</button>
+                        <button onClick={() => navigate(`/posts/${post.id}`)}>Open</button> 
                     </li>
                 )
             })}
