@@ -19,8 +19,8 @@ export default function PostDetails() {
 
     return (
         <div className="post-details">
-            <p>{data.title}</p>
-            <p>{data.body}</p>
+            <h1 className="post-details__title">{data.title}</h1>
+            <p className="post-details__body">{data.body}</p>
             <Comments postId={postId} />
         </div>
     );

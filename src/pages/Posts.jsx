@@ -84,34 +84,43 @@ export default function Posts() {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div>
-        <h1>Vk</h1>
-        <h2>Posts</h2>
-        <PostFilters
-            search={search}
-            sort={sort}
-            onSearchChange={handleSearchChange}
-            onSortChange={handleSortChange}
-        />
-        {posts.length === 0 ? (
-            <p>No posts yet</p>
-        ) : visiblePosts.length === 0 ? (
-            <p>Not found</p>
-        ) : (
-            <PostList
-                posts={paginatedPosts}
-                onDelete={deletePost}
-                lastElementRef={lastElementRef}
-                onOpenPost={openPost}
-            />
-        )}
+        <div className="posts">
+            <div className="posts__top">
+                <div className="posts__headings">
+                    <h1>VK</h1>
+                    <h2>Posts</h2>
+                </div>
 
-        <Button onOpen={openModal} />
-        <Modal
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            onCreate={addPost}
-        />
+                <button className="btn btn--primary" onClick={openModal}>
+                    Add post
+                </button>
+            </div>
+
+            <PostFilters
+                search={search}
+                sort={sort}
+                onSearchChange={handleSearchChange}
+                onSortChange={handleSortChange}
+            />
+
+            {posts.length === 0 ? (
+                <p className="message message--empty">No posts yet</p>
+            ) : visiblePosts.length === 0 ? (
+                <p className="message message--empty">Not found</p>
+            ) : (
+                <PostList
+                    posts={paginatedPosts}
+                    onDelete={deletePost}
+                    lastElementRef={lastElementRef}
+                    onOpenPost={openPost}
+                />
+            )}
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onCreate={addPost}
+            />
         </div>
     )
 }

@@ -37,30 +37,35 @@ export default function Modal({ isOpen, onClose, onCreate, } ) {
     }
 
     return (
-        <div
-            onClick={onClose}
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-            >
-                <h2>Create Post</h2>
+        <div className="modal" onClick={onClose}>
+            <div className="modal__content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="modal__title">Create post</h2>
 
-                <input 
+                <input
+                    className="input"
                     type="text"
                     placeholder="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
-                <input type="text"
-                    placeholder="body"
+
+                <textarea
+                    className="textarea"
+                    placeholder="Body"
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                 />
 
-                {error && <p>{error}</p>}
+                {error && <p className="message message--error">{error}</p>}
 
-                <button onClick={() => {handleAdd}}>Add Post</button>
-                <button onClick={onClose}>Close</button>
+                <div className="modal__actions">
+                    <button className="btn btn--secondary" onClick={onClose}>
+                        Close
+                    </button>
+                    <button className="btn btn--primary" onClick={handleAdd}>
+                        Add post
+                    </button>
+                </div>
             </div>
         </div>
     )

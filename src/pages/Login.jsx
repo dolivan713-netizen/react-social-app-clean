@@ -24,27 +24,33 @@ export default function Login() {
     }
 
     return (
-        <div>
-            <input 
-                type="text"
-                placeholder="userName"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-            />
+        <div className="auth">
+            <h1 className="auth__title">Login</h1>
 
-            <input
-                type="text"
-                placeholder="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="auth__form">
+                <input 
+                    className="input"
+                    type="text"
+                    placeholder="userName"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                />
+                <input 
+                    className="input"
+                    type="text"
+                    placeholder="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                {error && <p className="message message--error">{error}</p>}
 
-            {error && <p>{error}</p>}
-
-            <button onClick={() => handleLogin()}>Login</button>
-            <button onClick={() => navigate('/register')}>
-                Register
-            </button>
+                <div className="auth__actions">
+                    <button className="btn btn--primary" onClick={handleLogin}>Login</button>
+                    <button className="btn btn--secondary" onClick={() => navigate("/register")}>
+                        Register
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

@@ -5,8 +5,8 @@ export default function PostFilters({
     onSortChange,
 }) {
     return (
-        <div>
-            <select value={sort} onChange={(e) => onSortChange(e.target.value)}>
+        <div className="post-filters">
+            <select className="select" value={sort} onChange={(e) => onSortChange(e.target.value)}>
                 <option value="">No sort</option>
                 <option value="title">Sort by title</option>
                 <option value="body">Sort by body</option>

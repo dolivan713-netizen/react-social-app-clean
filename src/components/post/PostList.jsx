@@ -1,23 +1,34 @@
 export default function PostList({posts, onDelete, lastElementRef, onOpenPost}) {
     return (
-        <div>
-            <ul className="post-list">
+        <ul className="post-list">
             {posts.map((post, index) => {
                 const isLastElement = index === posts.length - 1;
-                    return (
-                    <li ref={isLastElement ? lastElementRef : null}
+
+                return (
+                    <li
                         key={post.id}
+                        ref={isLastElement ? lastElementRef : null}
+                        className="post-item"
                     >
-                        <p>{post.id}</p>
-                        <p>{post.title}</p>
-                        <p>{post.body}</p>
-                        <button onClick={() => onDelete(post.id)}>Delete</button>
-                        <button onClick={() => onOpenPost(post.id)}>Open</button> 
+                        <div className="post-item__meta">
+                            <span className="post-item__id">{post.id}</span>
+                        </div>
+
+                        <h3 className="post-item__title">{post.title}</h3>
+                        <p className="post-item__body">{post.body}</p>
+
+                        <div className="post-item__actions">
+                            <button className="btn btn--danger" onClick={() => onDelete(post.id)}>
+                                Delete
+                            </button>
+                            <button className="btn btn--secondary" onClick={() => onOpenPost(post.id)}>
+                                Open
+                            </button>
+                        </div>
                     </li>
-                )
+                );
             })}
-            </ul>
-        </div>
+        </ul>
         
     )
 }

@@ -27,59 +27,52 @@ export default function Register() {
         login();
         navigate('/posts');
     }
-    return <div>
+    return (
+        <div>
+            <h1>Register</h1>
+            
+            <div className="auth__form">
+                <input
+                    className="input"
+                    placeholder="userName"
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                ></input>
 
-        <h1>Register</h1>
-        
-        <input 
-            placeholder="userName"
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-        ></input>
+                <input
+                    className="input"
+                    placeholder="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                ></input>
 
-        <input
-            placeholder="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-        ></input>
+                <input
+                    className="input"
+                    placeholder="email"
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                ></input>
+                {error && <p className="message message--error">{error}</p>}
 
-        <input 
-            placeholder="email"
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-        ></input>
+                <div className="auth__actions">
+                    <button className="btn btn--primary" onClick={() => handleRegister()}>
+                        Register
+                    </button>
 
-        {error && <p>{error}</p>}
-
-        <button onClick={() => handleRegister()}>
-            Register
-        </button>
-
-        <button onClick={() => navigate(`/login`)}>
-            Already have an account? Login
-        </button>
-    </div>
+                    <button className="btn btn--secondary" onClick={() => navigate(`/login`)}>
+                        Already have an account? Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+    
 }
 
 
 
 
 
-// function handleRegister() {
-//         const checkEmail = users.find(user => user.email === email)
-//         const checkPassword = users.find(user => user.password === password)
-//         const checkUserName = users.find(user => user.userName === userName)
-//         if (checkEmail) return 'entry another email' 
-//         if (checkPassword) return 'entry another password'
-//         if (checkUserName) return 'entry another userName'
-//         onCreate({
-//             id: Date.now(),
-//             email,
-//             userName,
-//             password
-//         })
-//         navigate(`/posts`)
-//     }

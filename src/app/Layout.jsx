@@ -6,51 +6,41 @@ const Layout = () => {
     const {isAuth, logout} = useContext(AuthContext)
     return (
         <>
-            <header>
-                <NavLink
-                    to="/"
-                    className={({ isActive }) => (isActive ? "active-link" : "")}
-                >
-                    Home
-                </NavLink>
+            <header className="layout__header">
+                <nav className="layout__nav">
+                    <span className="layout__brand">React Social App</span>
 
-                {isAuth && (
-                    <NavLink
-                        to="/posts"
-                        className={({ isActive }) => (isActive ? "active-link" : "")}
-                    >
-                        Posts
+                    <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "active-link" : ""}`}>
+                        Home
                     </NavLink>
-                )}
 
-                {!isAuth && (
-                    <>
-                        <NavLink
-                        to="/login"
-                        className={({ isActive }) => (isActive ? "active-link" : "")}
-                        >
-                            Login
+                    {isAuth && (
+                        <NavLink to="/posts" className={({ isActive }) => `nav-link ${isActive ? "active-link" : ""}`}>
+                            Posts
                         </NavLink>
+                    )}
 
-                        <NavLink
-                            to="/register"
-                            className={({ isActive }) => (isActive ? "active-link" : "")}
-                        >
-                            Register
-                        </NavLink>
-                    </>
-                )}
+                    {!isAuth && (
+                        <>
+                            <NavLink to="/login" className={({ isActive }) => `nav-link ${isActive ? "active-link" : ""}`}>
+                                Login
+                            </NavLink>
 
-                {isAuth && (
-                    <>
-                        <button onClick={logout}>
+                            <NavLink to="/register" className={({ isActive }) => `nav-link ${isActive ? "active-link" : ""}`}>
+                                Register
+                            </NavLink>
+                        </>
+                    )}
+
+                    {isAuth && (
+                        <button className="layout__logout" onClick={logout}>
                             Logout
                         </button>
-                    </>
-                )}
+                    )}
+                </nav>
             </header>
 
-            <main>
+            <main className="layout__main">
                 <Outlet />
             </main>
         </>

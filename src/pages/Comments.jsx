@@ -12,14 +12,21 @@ export default function Comments({postId}) {
     if (data.length === 0) return <p>No comments yet</p>
 
     return (
-        <div>
-            {data.map((comment, index) => (
-                <div key={comment.id}>
-                    <p>{index + 1}</p>
-                    <p><strong>{comment.name}</strong></p>
-                    <p>{comment.body}</p>
-                </div>
-            ))}
+        <div className="comments">
+            <h2 className="comments__title">Comments</h2>
+
+            <div className="comments__list">
+                {data.map((comment, index) => (
+                    <div key={comment.id} className="comment">
+                        <div className="comment__meta">
+                            <span className="comment__index">{index + 1}</span>
+                            <p className="comment__name"><strong>{comment.name}</strong></p>
+                        </div>
+
+                        <p className="comment__body">{comment.body}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
