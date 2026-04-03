@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 
-export default function Modal({ isOpen, onClose, onCreate, postsNum } ) {
+export default function Modal({ isOpen, onClose, onCreate, } ) {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
+    const [error, setError] = useState('')
 
     useEffect(() => {
         if (!isOpen) return
@@ -15,31 +16,34 @@ export default function Modal({ isOpen, onClose, onCreate, postsNum } ) {
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
         }
-    }, [!isOpen, onClose])
+    }, [isOpen, onClose])
 
     if (!isOpen) return null
 
     function handleAdd() {
+        if (!title.trim() || !body.trim()) {
+            setError('Fill in all fields');
+            return;
+        }
         onCreate({
-            id: postsNum + 1,
-            title,
-            body 
+            id: Date.now(),
+            title: title.trim(),
+            body: body.trim(),
         })
         setTitle('')
         setBody('')
+        setError('')
         onClose()
     }
 
     return (
         <div
-            style={overlayStyle}
             onClick={onClose}
         >
             <div
-                style={modalStyle}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2>Craete Post</h2>
+                <h2>Create Post</h2>
 
                 <input 
                     type="text"
@@ -52,28 +56,12 @@ export default function Modal({ isOpen, onClose, onCreate, postsNum } ) {
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                 />
-                <button onClick={() => {handleAdd()}}>Add Task</button>
+
+                {error && <p>{error}</p>}
+
+                <button onClick={() => {handleAdd}}>Add Post</button>
                 <button onClick={onClose}>Close</button>
             </div>
         </div>
     )
-}
-
-const overlayStyle = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  background: 'rgba(0,0,0,0.5)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center'
-}
-
-const modalStyle = {
-  background: 'rgba(2, 1, 1, 1)',
-  padding: '20px',
-  borderRadius: '8px',
-  minWidth: '300px'
 }
