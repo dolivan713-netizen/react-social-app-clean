@@ -1,18 +1,77 @@
-# React + Vite
+# React Social App Clean
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Мини-соцсеть на React + Vite, которую я сделал как учебный pet-project для прокачки архитектурного мышления во frontend-разработке.
 
-Currently, two official plugins are available:
+## О проекте
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Проект сделан не просто как список постов, а как тренировочная площадка для следующих навыков:
 
-## React Compiler
+- декомпозиция интерфейса на page / container / UI-компоненты
+- разделение source of truth и derived data
+- работа с маршрутизацией
+- организация авторизации через context
+- переиспользуемые custom hooks
+- работа со списками, фильтрацией, сортировкой и infinite scroll
+- обработка loading / error / empty states
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Функциональность
 
-Note: This will impact Vite dev & build performances.
+Сейчас в проекте реализовано:
 
-## Expanding the ESLint configuration
+- авторизация через `AuthContext`
+- `ProtectedRoute`
+- страницы `Home`, `Login`, `Register`, `Posts`, `PostDetails`
+- список постов
+- открытие страницы конкретного поста
+- загрузка комментариев по `postId`
+- создание поста через модальное окно
+- удаление поста
+- поиск
+- сортировка
+- infinite scroll
+- custom hooks: `useFetch`, `useDebounce`, `useObserver`, `usePosts`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Стек
+
+- React
+- Vite
+- React Router
+- JavaScript
+- CSS
+- ESLint
+
+## Архитектура
+
+Проект организован по слоям ответственности:
+
+- `pages` — orchestration layer, связывает роутинг, данные и UI
+- `components` — UI и предметные компоненты
+- `hooks` — переиспользуемая логика
+- `services` — HTTP-слой
+- `context` — глобальное auth-состояние
+- `styles` — глобальные стили
+- `app` — верхний каркас приложения и layout
+
+### Главные архитектурные идеи проекта
+
+- `state` — источник истины для UI
+- derived data не хранится в state, если может быть вычислена
+- page-компоненты управляют сценарием страницы
+- presentation-компоненты получают готовые данные через props
+- browser/API-логика выносится в custom hooks
+- route params читаются в page boundary, а вниз передаются обычные props
+
+## Структура проекта
+
+```text
+src/
+  app/
+  components/
+    post/
+    ui/
+  context/
+  hooks/
+  pages/
+  services/
+  styles/
+  utils/
