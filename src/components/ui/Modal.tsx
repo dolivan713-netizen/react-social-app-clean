@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
+import { PropsModal } from "../../types/post";
 
-export default function Modal({ isOpen, onClose, onCreate, } ) {
+type EventName = 'keydown' | 'Escape'
+type EventHandler = `on${EventName}`;
+
+
+export default function Modal({ isOpen, onClose, onCreate, }: PropsModal ) {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
     const [error, setError] = useState('')
 
     useEffect(() => {
         if (!isOpen) return
-        function handleKeyDown(e) {
+        function handleKeyDown(e: KeyboardEvent) {
+            
             if (e.key === 'Escape') {
                 onClose()
             }

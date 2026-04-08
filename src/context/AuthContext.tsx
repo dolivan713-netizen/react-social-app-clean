@@ -1,13 +1,20 @@
 import { createContext, useState, useEffect } from "react";
+import type { AuthContextValue } from "../types/post";
+import type { Child } from "../types/post";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext<AuthContextValue | null>(null)
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children }: Child) {
     const [isAuth, setIsAuth] = useState(false);
     const [authReady, setAuthRaedy] = useState(false);
 
     useEffect(() => {
-        let data = JSON.parse(localStorage.getItem('isAuth'));
+        let raw: string | null = localStorage.getItem('isAuth')
+        if (raw === null) {
+            throw new Error("Error localstorage");
+        }
+        let data: boolean = JSON.parse(raw);
+        if (!data) return;
 
         if (data) {
             setIsAuth(true)

@@ -2,7 +2,11 @@ import { postService } from '../services/postService';
 import useFetch from "../hooks/useFetch"
 import { useCallback, useEffect, useState } from 'react';
 
-export default function Comments({postId}) {
+type id = {
+    postId: number
+}
+
+export default function Comments({postId}: id) {
     const handler = useCallback(() => postService.getComments(Number(postId)),[postId])
     const { data, loading, error } = useFetch(handler)
 

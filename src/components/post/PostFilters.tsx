@@ -1,9 +1,6 @@
-export default function PostFilters({
-    search,
-    sort,
-    onSearchChange,
-    onSortChange,
-}) {
+import type { PropsFilters } from "../../types/post";
+
+export default function PostFilters({search, sort, onSearchChange, onSortChange,}: PropsFilters) {
     return (
         <div className="post-filters">
             <select className="select" value={sort} onChange={(e) => onSortChange(e.target.value)}>

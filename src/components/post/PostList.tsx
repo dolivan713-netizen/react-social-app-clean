@@ -1,4 +1,7 @@
-export default function PostList({posts, onDelete, lastElementRef, onOpenPost}) {
+import type { Post, PropsList } from "../../types/post"
+
+
+export default function PostList({posts, onDelete, lastElementRef, onOpenPost}: PropsList) {
     return (
         <ul className="post-list">
             {posts.map((post, index) => {

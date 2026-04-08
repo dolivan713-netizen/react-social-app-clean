@@ -7,12 +7,12 @@ import useDebounce from "../hooks/useDebounce"
 import useObserver from "../hooks/useObserver"
 import PostList from "../components/post/PostList";
 import PostFilters from "../components/post/PostFilters";
-import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
+import type { Post } from "../types/post";
 
 export default function Posts() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState('');
     const [page, setPage] = useState(1);
@@ -20,11 +20,11 @@ export default function Posts() {
     const debouncedSearch = useDebounce(search, 300);
     const visiblePosts = usePosts(posts, sort, debouncedSearch)
     const navigate = useNavigate();
-    const fetchPosts = useCallback(() => postService.getPosts(), []);
+    const fetchPosts = useCallback((): Promise<Post[]> => postService.getPosts(), []);
     const { data, error, loading } = useFetch(fetchPosts);
     const LIMIT = 10;
     
-    function openPost(id) {
+    function openPost(id : Post["id"]) {
         navigate(`/posts/${id}`)
     }
 
@@ -67,16 +67,16 @@ export default function Posts() {
     function closeModal() {
         setIsModalOpen(false)
     }
-    function addPost(newPost) {
+    function addPost(newPost : Post) {
         setPosts(prev => [...prev, newPost])
     }
-    function deletePost(id) {
+    function deletePost(id : Post["id"]) {
         setPosts(prev => prev.filter(post => post.id !== id))
     }
-    function handleSearchChange(value) {
+    function handleSearchChange(value : string) {
         setSearch(value)
     }
-    function handleSortChange(value) {
+    function handleSortChange(value : string) {
         setSort(value)
     }
 

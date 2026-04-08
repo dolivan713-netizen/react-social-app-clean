@@ -1,4 +1,6 @@
-export const postService = {
+import type { PostService } from "../types/post"
+
+export const postService: PostService = {
     getPost: (id) => fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
     .then(response => {
         if(!response.ok) {
@@ -19,3 +21,9 @@ export const postService = {
         return response.json()
     }),
 }
+
+
+
+
+
+

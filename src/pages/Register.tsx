@@ -3,12 +3,19 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom"
 
 export default function Register() {
-    const {login} = useContext(AuthContext);
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [userName, setUserName] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate()
+    const auth = useContext(AuthContext);
+
+    if (!auth) {
+        throw new Error("AuthContext is missing")
+    }
+
+    const { login } = auth
 
     function handleRegister() {
         setError("")
