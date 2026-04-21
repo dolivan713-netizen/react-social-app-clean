@@ -21,9 +21,3 @@ export const postService: PostService = {
         return response.json()
     }),
 }
-
-
-
-
-
-

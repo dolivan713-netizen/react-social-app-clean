@@ -13,7 +13,6 @@ export default function Modal({ isOpen, onClose, onCreate, }: PropsModal ) {
     useEffect(() => {
         if (!isOpen) return
         function handleKeyDown(e: KeyboardEvent) {
-            
             if (e.key === 'Escape') {
                 onClose()
             }
