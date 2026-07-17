@@ -1,77 +1,70 @@
-# React Social App Clean
+# React Social App
 
-Мини-соцсеть на React + Vite, которую я сделал как учебный pet-project для прокачки архитектурного мышления во frontend-разработке.
+Учебный pet-project: мини-соцсеть на React + TypeScript. Посты с пагинацией, поиском и сортировкой, лайки с оптимистичным обновлением, комментарии, создание и удаление постов, авторизация с защищёнными роутами.
 
-## О проекте
-
-Проект сделан не просто как список постов, а как тренировочная площадка для следующих навыков:
-
-- декомпозиция интерфейса на page / container / UI-компоненты
-- разделение source of truth и derived data
-- работа с маршрутизацией
-- организация авторизации через context
-- переиспользуемые custom hooks
-- работа со списками, фильтрацией, сортировкой и infinite scroll
-- обработка loading / error / empty states
-
-## Функциональность
-
-Сейчас в проекте реализовано:
-
-- авторизация через `AuthContext`
-- `ProtectedRoute`
-- страницы `Home`, `Login`, `Register`, `Posts`, `PostDetails`
-- список постов
-- открытие страницы конкретного поста
-- загрузка комментариев по `postId`
-- создание поста через модальное окно
-- удаление поста
-- поиск
-- сортировка
-- infinite scroll
-- custom hooks: `useFetch`, `useDebounce`, `useObserver`, `usePosts`
+Данные — из публичного mock-API [JSONPlaceholder](https://jsonplaceholder.typicode.com).
 
 ## Стек
 
-- React
-- Vite
-- React Router
-- JavaScript
-- CSS
-- ESLint
+- **React 19** + **TypeScript** (strict)
+- **Vite** + React Compiler
+- **TanStack Query v5** — работа с server state
+- **React Router v7**
+- **Mantine** — UI-компоненты
+- ESLint (typescript-eslint)
 
-## Архитектура
+## Что реализовано
 
-Проект организован по слоям ответственности:
+- Авторизация через Context + `ProtectedRoute` (mock: без бэкенда, флаг в localStorage)
+- Список постов с постраничной загрузкой через `useInfiniteQuery`
+- Поиск с debounce и сортировка
+- Лайки с оптимистичным обновлением кэша (`onMutate` → откат в `onError`)
+- Создание и удаление постов через `useMutation`
+- Страница деталей поста с комментариями
+- Кастомные хуки: `useAuth`, `useDebounce`, `usePosts`, `useToggleLike`
 
-- `pages` — orchestration layer, связывает роутинг, данные и UI
-- `components` — UI и предметные компоненты
-- `hooks` — переиспользуемая логика
-- `services` — HTTP-слой
-- `context` — глобальное auth-состояние
-- `styles` — глобальные стили
-- `app` — верхний каркас приложения и layout
+## Архитектурные решения
 
-### Главные архитектурные идеи проекта
+- **Server state отделён от client state.** Данные сервера (посты, комментарии) живут в кэше TanStack Query; клиентское состояние (auth, поиск, модалка) — в `useState` и Context.
+- **Слои ответственности:** `pages` оркеструют данные и сценарии страниц, `components` — презентационные, `services` — HTTP-слой, `hooks` — переиспользуемая логика.
+- **Derived data не хранится в state:** отфильтрованный и отсортированный список вычисляется через `useMemo` из данных кэша.
+- **Нормализация на границе:** `postService` приводит ответы API к типам приложения — например, добавляет поля `likedByMe` / `likesCount`, которых нет в JSONPlaceholder.
 
-- `state` — источник истины для UI
-- derived data не хранится в state, если может быть вычислена
-- page-компоненты управляют сценарием страницы
-- presentation-компоненты получают готовые данные через props
-- browser/API-логика выносится в custom hooks
-- route params читаются в page boundary, а вниз передаются обычные props
+## Два паттерна мутаций (намеренно)
+
+JSONPlaceholder не сохраняет изменения: POST/DELETE отвечают успехом, но данные на сервере не меняются. Поэтому в проекте сознательно показаны оба подхода к мутациям:
+
+- **Create / Delete — канонический паттерн с `invalidateQueries`.** После мутации кэш инвалидируется, и данные перезапрашиваются с сервера. На реальном API это предпочтительный путь: сервер — источник истины. На mock-API рефетч возвращает исходные данные, поэтому созданный пост «исчезает», а удалённый «возвращается» — это ожидаемое следствие мока, а не баг.
+- **Лайки — оптимистичное обновление.** Кэш меняется мгновенно в `onMutate` (снапшот предыдущего состояния сохраняется), при ошибке состояние откатывается в `onError`. Эндпоинт лайков замокан в сервисе (у JSONPlaceholder его нет), но вся логика оптимистики настоящая.
+
+## Ограничения
+
+- Авторизация фейковая: проверяется только заполненность полей, флаг хранится в localStorage.
+- Лайки живут в кэше клиента — обновление страницы их сбрасывает.
+- Поиск и сортировка работают по уже загруженным страницам; в реальном проекте параметры поиска уходили бы на сервер и включались в `queryKey`.
+
+## Запуск
+
+```bash
+npm install
+npm run dev        # дев-сервер
+npm run build      # прод-сборка
+npm run typecheck  # проверка типов
+npm run lint       # линтер
+```
 
 ## Структура проекта
 
 ```text
 src/
-  app/
+  app/          # каркас приложения: App (роуты), Layout
   components/
-    post/
-    ui/
-  context/
-  hooks/
-  pages/
-  services/
-  styles/
-  utils/
+    post/       # PostList, PostFilters
+    ui/         # Modal
+    ProtectedRoute/
+  context/      # AuthContext (провайдер) + auth (createContext)
+  hooks/        # useAuth, useDebounce, usePosts, useToggleLike
+  pages/        # Home, Login, Register, Posts, PostDetails, Comments
+  services/     # postService — весь HTTP-слой
+  types/        # общие типы
+```

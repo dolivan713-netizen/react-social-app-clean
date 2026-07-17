@@ -1,27 +1,35 @@
 import { useParams } from "react-router-dom"
 import { postService } from '../services/postService';
-import useFetch from "../hooks/useFetch"
 import Comments from "./Comments";
-import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Alert, Center, Loader, Stack, Text, Title } from "@mantine/core";
+import type { Post } from "../types/post";
 
 export default function PostDetails() {
     const { id } = useParams();
     const postId = Number(id);
     const isInvalidId = !id || Number.isNaN(postId);
 
-    const fetchPost = useCallback(() => postService.getPost(postId), [postId]);
-    const { data, error, loading } = useFetch(fetchPost);
+    const {
+        data: post,
+        isPending,
+        isError,
+    } = useQuery<Post, Error>({
+        queryKey: ['posts', postId],
+        queryFn: () => postService.getPost(postId),
+        enabled: Boolean(postId)
+    })
 
-    if (isInvalidId) return <p>Invalid post ID</p>;
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
-    if (!data) return <p>Post not found</p>;
+    if (isInvalidId) return <Alert color="red">Invalid post ID</Alert>;
+    if (isPending) return <Center py="xl"><Loader /></Center>;
+    if (isError) return <Alert color="red">Failed to load post</Alert>;
 
     return (
-        <div className="post-details">
-            <h1 className="post-details__title">{data.title}</h1>
-            <p className="post-details__body">{data.body}</p>
+        <Stack gap="md">
+            <Title order={2}>{post.title}</Title>
+            <Text>{post.body}</Text>
+
             <Comments postId={postId} />
-        </div>
+        </Stack>
     );
 }

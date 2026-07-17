@@ -1,36 +1,40 @@
 import { postService } from '../services/postService';
-import useFetch from "../hooks/useFetch"
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Alert, Badge, Center, Group, Loader, Paper, Stack, Text, Title } from "@mantine/core";
+import type { Comment } from '../types/post';
 
 type id = {
     postId: number
 }
 
 export default function Comments({postId}: id) {
-    const handler = useCallback(() => postService.getComments(Number(postId)),[postId])
-    const { data, loading, error } = useFetch(handler)
+    const {
+        data: comments,
+        isPending,
+        isError,
+    } = useQuery<Comment[], Error>({
+        queryKey: ['comments', postId],
+        queryFn: () => postService.getComments(Number(postId))
+    })
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>
-    if (!data) return <p>No comments data</p> 
-    if (data.length === 0) return <p>No comments yet</p>
+    if (isPending) return <Center py="md"><Loader size="sm" /></Center>;
+    if (isError) return <Alert color="red">Failed to load comments</Alert>;
+    if (comments.length === 0) return <Text c="dimmed">No comments yet</Text>;
 
     return (
-        <div className="comments">
-            <h2 className="comments__title">Comments</h2>
+        <Stack mt="lg">
+            <Title order={3}>Comments</Title>
 
-            <div className="comments__list">
-                {data.map((comment, index) => (
-                    <div key={comment.id} className="comment">
-                        <div className="comment__meta">
-                            <span className="comment__index">{index + 1}</span>
-                            <p className="comment__name"><strong>{comment.name}</strong></p>
-                        </div>
+            {comments.map((comment, index) => (
+                <Paper key={comment.id} withBorder radius="md" p="md">
+                    <Group gap="xs" mb="xs">
+                        <Badge variant="light" size="sm">{index + 1}</Badge>
+                        <Text fw={600} size="sm">{comment.name}</Text>
+                    </Group>
 
-                        <p className="comment__body">{comment.body}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
+                    <Text size="sm">{comment.body}</Text>
+                </Paper>
+            ))}
+        </Stack>
     )
 }

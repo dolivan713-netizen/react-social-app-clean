@@ -1,126 +1,104 @@
-import { useEffect, useState, useRef, useMemo, useCallback} from "react";
+import { useState } from "react";
 import { postService } from '../services/postService';
 import { useNavigate } from "react-router-dom"
-import useFetch from "../hooks/useFetch";
+import { useQueryClient, useMutation, useInfiniteQuery } from "@tanstack/react-query";
+import { Alert, Button, Center, Group, Loader, Stack, Text, Title } from "@mantine/core";
 import usePosts from "../hooks/usePosts";
 import useDebounce from "../hooks/useDebounce"
-import useObserver from "../hooks/useObserver"
 import PostList from "../components/post/PostList";
 import PostFilters from "../components/post/PostFilters";
 import Modal from "../components/ui/Modal";
-import type { Post } from "../types/post";
+import type { Post, ResponsePagePosts } from "../types/post";
+import useToggleLike from "../hooks/useToggleLike";
 
 export default function Posts() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [posts, setPosts] = useState<Post[]>([]);
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState('');
-    const [page, setPage] = useState(1);
-    const isInitialized = useRef(false);
+
     const debouncedSearch = useDebounce(search, 300);
-    const visiblePosts = usePosts(posts, sort, debouncedSearch)
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const fetchPosts = useCallback((): Promise<Post[]> => postService.getPosts(), []);
-    const { data, error, loading } = useFetch(fetchPosts);
-    const LIMIT = 10;
-    
-    function openPost(id : Post["id"]) {
-        navigate(`/posts/${id}`)
-    }
+    const {mutate: likePost, isPending: isPendingLike} = useToggleLike();
 
-    useEffect(() => {
-        setPage(1)
-    }, [debouncedSearch, sort]);
-    
-    const paginatedPosts = useMemo(() => {
-        return visiblePosts.slice(0, page * LIMIT)
-    }, [page, visiblePosts])
-
-    const lastElementRef = useRef(null)
-    const totalPages = Math.ceil(visiblePosts.length / LIMIT);
-
-    const handleObserver = useCallback(() => {
-    setPage(prev => {
-        if (prev < totalPages) { 
-            return prev + 1
-        } return prev
-    })
-    },[totalPages])
-    const observe = useObserver(handleObserver)
-
-    useEffect(() => {
-        if (lastElementRef.current) {
-            observe(lastElementRef.current)
+    const {
+        mutate: mutateDeletePost,
+        isError: errorDelete,
+        isPending: pendingDelete
+    } = useMutation({
+        mutationFn: postService.deletePost,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['posts'] })
         }
-    }, [paginatedPosts, observe])
+    })
 
-    useEffect(() => {
-        if(data && !isInitialized.current) {
-            setPosts(data)
-            isInitialized.current = true
-        } 
-    },[data]);
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isPending,
+        isError
+    } = useInfiniteQuery<ResponsePagePosts, Error>({
+        queryKey: ['posts', 'infinite'],
+        initialPageParam: 1,
+        queryFn: ({ pageParam }) => postService.getPostsPage(pageParam as number),
+        getNextPageParam: (lastPage) => lastPage.nextPage,
+    })
 
-    function openModal() {
-        setIsModalOpen(true)
-    }
-    function closeModal() {
-        setIsModalOpen(false)
-    }
-    function addPost(newPost : Post) {
-        setPosts(prev => [...prev, newPost])
-    }
-    function deletePost(id : Post["id"]) {
-        setPosts(prev => prev.filter(post => post.id !== id))
-    }
-    function handleSearchChange(value : string) {
-        setSearch(value)
-    }
-    function handleSortChange(value : string) {
-        setSort(value)
+    const postsPage = data?.pages.flatMap((page) => page.items) ?? []
+
+    const visiblePosts = usePosts(postsPage, sort, debouncedSearch);
+
+    const infiniteQuery = {visiblePosts, fetchNextPage, hasNextPage, isFetchingNextPage};
+    const toggleLike = {likePost, isPendingLike};
+    const deletePost = { mutateDeletePost, errorDelete, pendingDelete };
+
+    const handles = {
+        openPost: (id : Post["id"]) => navigate(`/posts/${id}`),
+        openModal: () => setIsModalOpen(true),
+        closeModal: () => setIsModalOpen(false),
+        searchChange: (value : string) => setSearch(value),
+        sortChange: (value : string) => setSort(value)
     }
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+    if (isPending) return <Center py="xl"><Loader /></Center>;
+    if (isError) return <Alert color="red">Failed to load posts</Alert>;
 
     return (
-        <div className="posts">
-            <div className="posts__top">
-                <div className="posts__headings">
-                    <h1>VK</h1>
-                    <h2>Posts</h2>
-                </div>
+        <Stack gap="lg">
+            <Group justify="space-between">
+                <Title order={2}>Posts</Title>
 
-                <button className="btn btn--primary" onClick={openModal}>
+                <Button onClick={handles.openModal}>
                     Add post
-                </button>
-            </div>
+                </Button>
+            </Group>
 
             <PostFilters
                 search={search}
                 sort={sort}
-                onSearchChange={handleSearchChange}
-                onSortChange={handleSortChange}
+                onSearchChange={handles.searchChange}
+                onSortChange={handles.sortChange}
             />
 
-            {posts.length === 0 ? (
-                <p className="message message--empty">No posts yet</p>
+            {postsPage.length === 0 ? (
+                <Text c="dimmed">No posts yet</Text>
             ) : visiblePosts.length === 0 ? (
-                <p className="message message--empty">Not found</p>
+                <Text c="dimmed">Not found</Text>
             ) : (
                 <PostList
-                    posts={paginatedPosts}
-                    onDelete={deletePost}
-                    lastElementRef={lastElementRef}
-                    onOpenPost={openPost}
+                    infiniteQuery={infiniteQuery}
+                    onOpenPost={handles.openPost}
+                    toggleLike={toggleLike}
+                    deletePost={deletePost}
                 />
             )}
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                onCreate={addPost}
+                onClose={handles.closeModal}
             />
-        </div>
+        </Stack>
     )
 }

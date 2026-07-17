@@ -1,72 +1,68 @@
-import "../styles/global.css"
-import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { Button, Card, Group, List, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import useAuth from "../hooks/useAuth";
 
 export default function Home() {
-    const { isAuth } = useContext(AuthContext);
+    const { isAuth } = useAuth();
 
     return (
-        <section className="home">
-            <div className="home__hero">
-                <h1 className="home__title">React Social App</h1>
-                <p className="home__subtitle">
+        <Stack gap="xl">
+            <Stack gap="sm" align="center" ta="center" py="xl">
+                <Title>React Social App</Title>
+                <Text c="dimmed" maw={520}>
                     Учебный pet-project на React с авторизацией, постами,
-                    поиском, сортировкой, бесконечной прокруткой и страницей деталей поста.
-                </p>
+                    поиском, сортировкой, пагинацией и страницей деталей поста.
+                </Text>
 
-                <div className="home__actions">
+                <Group mt="md">
                     {isAuth ? (
-                        <Link className="home__button" to="/posts">
+                        <Button component={Link} to="/posts">
                             Перейти к постам
-                        </Link>
+                        </Button>
                     ) : (
                         <>
-                            <Link className="home__button" to="/login">
+                            <Button component={Link} to="/login">
                                 Войти
-                            </Link>
-                            <Link
-                                className="home__button home__button--secondary"
-                                to="/register"
-                            >
+                            </Button>
+                            <Button component={Link} to="/register" variant="default">
                                 Регистрация
-                            </Link>
+                            </Button>
                         </>
                     )}
-                </div>
-            </div>
+                </Group>
+            </Stack>
 
-            <div className="home__content">
-                <div className="home__card">
-                    <h2>О проекте</h2>
-                    <p>
+            <SimpleGrid cols={{ base: 1, sm: 3 }}>
+                <Card withBorder radius="md" padding="lg">
+                    <Title order={3} mb="sm">О проекте</Title>
+                    <Text size="sm">
                         Этот проект помогает мне изучать React через реальное приложение:
                         роутинг, auth flow, кастомные хуки, работу с запросами
                         и декомпозицию интерфейса.
-                    </p>
-                </div>
+                    </Text>
+                </Card>
 
-                <div className="home__card">
-                    <h2>Что уже реализовано</h2>
-                    <ul className="home__list">
-                        <li>Авторизация через Context и ProtectedRoute</li>
-                        <li>Страница постов с поиском и сортировкой</li>
-                        <li>Бесконечная прокрутка через IntersectionObserver</li>
-                        <li>Добавление и удаление постов</li>
-                        <li>Страница деталей поста</li>
-                        <li>Загрузка комментариев по id поста</li>
-                    </ul>
-                </div>
+                <Card withBorder radius="md" padding="lg">
+                    <Title order={3} mb="sm">Что уже реализовано</Title>
+                    <List size="sm" spacing="xs">
+                        <List.Item>Авторизация через Context и ProtectedRoute</List.Item>
+                        <List.Item>Посты с поиском и сортировкой</List.Item>
+                        <List.Item>Пагинация через useInfiniteQuery</List.Item>
+                        <List.Item>Лайки с оптимистичным обновлением</List.Item>
+                        <List.Item>Создание и удаление постов</List.Item>
+                        <List.Item>Страница деталей и комментарии</List.Item>
+                    </List>
+                </Card>
 
-                <div className="home__card">
-                    <h2>Текущая цель</h2>
-                    <p>
+                <Card withBorder radius="md" padding="lg">
+                    <Title order={3} mb="sm">Текущая цель</Title>
+                    <Text size="sm">
                         Построить проект шаг за шагом и понять не только,
                         как он работает, но и почему каждое архитектурное решение
                         сделано именно так.
-                    </p>
-                </div>
-            </div>
-        </section>
+                    </Text>
+                </Card>
+            </SimpleGrid>
+        </Stack>
     );
 }

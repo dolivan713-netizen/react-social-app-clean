@@ -1,77 +1,76 @@
-import { useState, useEffect } from "react";
-import { PropsModal } from "../../types/post";
+import { useState } from "react";
+import { Button, Group, Modal as MantineModal, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import type { NewPost, PropsModal } from "../../types/post";
+import { postService } from "../../services/postService";
 
-type EventName = 'keydown' | 'Escape'
-type EventHandler = `on${EventName}`;
-
-
-export default function Modal({ isOpen, onClose, onCreate, }: PropsModal ) {
+export default function Modal({ isOpen, onClose }: PropsModal ) {
+    const queryClient = useQueryClient();
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
-    const [error, setError] = useState('')
+    const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (!isOpen) return
-        function handleKeyDown(e: KeyboardEvent) {
-            if (e.key === 'Escape') {
-                onClose()
-            }
+    const {
+        mutate: mutateCreatePost,
+        isError,
+        isPending,
+    } = useMutation({
+        mutationFn: postService.createPost,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['posts'] })
+            setTitle('')
+            setBody('');
+            setError('');
+            onClose()
         }
-        document.addEventListener('keydown', handleKeyDown)
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown)
-        }
-    }, [isOpen, onClose])
-
-    if (!isOpen) return null
+    })
 
     function handleAdd() {
         if (!title.trim() || !body.trim()) {
             setError('Fill in all fields');
             return;
         }
-        onCreate({
+
+        const newPost: NewPost = {
             id: Date.now(),
-            title: title.trim(),
-            body: body.trim(),
-        })
-        setTitle('')
-        setBody('')
-        setError('')
-        onClose()
+            title,
+            body
+        }
+
+        mutateCreatePost(newPost);
     }
 
     return (
-        <div className="modal" onClick={onClose}>
-            <div className="modal__content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="modal__title">Create post</h2>
-
-                <input
-                    className="input"
-                    type="text"
+        <MantineModal opened={isOpen} onClose={onClose} title="Create post" centered>
+            <Stack>
+                <TextInput
+                    label="Title"
                     placeholder="Title"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => setTitle(e.currentTarget.value)}
                 />
 
-                <textarea
-                    className="textarea"
+                <Textarea
+                    label="Body"
                     placeholder="Body"
+                    autosize
+                    minRows={3}
                     value={body}
-                    onChange={(e) => setBody(e.target.value)}
+                    onChange={(e) => setBody(e.currentTarget.value)}
                 />
 
-                {error && <p className="message message--error">{error}</p>}
+                {error && <Text c="red" size="sm">{error}</Text>}
+                {isError && <Text c="red" size="sm">Error create post</Text>}
 
-                <div className="modal__actions">
-                    <button className="btn btn--secondary" onClick={onClose}>
+                <Group justify="flex-end">
+                    <Button variant="default" onClick={onClose}>
                         Close
-                    </button>
-                    <button className="btn btn--primary" onClick={handleAdd}>
+                    </Button>
+                    <Button onClick={handleAdd} loading={isPending}>
                         Add post
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </Button>
+                </Group>
+            </Stack>
+        </MantineModal>
     )
 }

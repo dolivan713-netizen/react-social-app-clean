@@ -1,28 +1,22 @@
-import { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext"; 
+import { useState } from "react";
 import { useNavigate } from "react-router-dom"
+import { Button, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from "@mantine/core";
+import useAuth from "../hooks/useAuth";
 
 export default function Register() {
-    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [userName, setUserName] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate()
-    const auth = useContext(AuthContext);
-
-    if (!auth) {
-        throw new Error("AuthContext is missing")
-    }
-
-    const { login } = auth
+    const { login } = useAuth();
 
     function handleRegister() {
         setError("")
         if (!email.trim()) {
             setError('Enter email');
             return;
-        }   
+        }
         if (!password.trim()) {
             setError('Enter password');
             return;
@@ -34,52 +28,43 @@ export default function Register() {
         login();
         navigate('/posts');
     }
+
     return (
-        <div>
-            <h1>Register</h1>
-            
-            <div className="auth__form">
-                <input
-                    className="input"
+        <Paper withBorder radius="md" p="xl" maw={400} mx="auto" mt="xl">
+            <Stack>
+                <Title order={2}>Register</Title>
+
+                <TextInput
+                    label="Username"
                     placeholder="userName"
-                    type="text"
                     value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                ></input>
+                    onChange={(e) => setUserName(e.currentTarget.value)}
+                />
 
-                <input
-                    className="input"
+                <PasswordInput
+                    label="Password"
                     placeholder="password"
-                    type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                ></input>
+                    onChange={(e) => setPassword(e.currentTarget.value)}
+                />
 
-                <input
-                    className="input"
+                <TextInput
+                    label="Email"
                     placeholder="email"
-                    type="text"
+                    type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                ></input>
-                {error && <p className="message message--error">{error}</p>}
+                    onChange={(e) => setEmail(e.currentTarget.value)}
+                />
 
-                <div className="auth__actions">
-                    <button className="btn btn--primary" onClick={() => handleRegister()}>
-                        Register
-                    </button>
+                {error && <Text c="red" size="sm">{error}</Text>}
 
-                    <button className="btn btn--secondary" onClick={() => navigate(`/login`)}>
+                <Group>
+                    <Button onClick={handleRegister}>Register</Button>
+                    <Button variant="subtle" onClick={() => navigate('/login')}>
                         Already have an account? Login
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </Button>
+                </Group>
+            </Stack>
+        </Paper>
     )
-    
 }
-
-
-
-
-

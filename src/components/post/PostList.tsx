@@ -1,37 +1,57 @@
-import type { Post, PropsList } from "../../types/post"
+import { Badge, Button, Card, Group, Stack, Text, Title } from "@mantine/core";
+import type { PropsList } from "../../types/post";
 
+export default function PostList({ infiniteQuery, onOpenPost, toggleLike, deletePost }: PropsList) {
+    const { likePost, isPendingLike } = toggleLike;
+    const { mutateDeletePost, errorDelete, pendingDelete } = deletePost;
+    const { visiblePosts, fetchNextPage, hasNextPage, isFetchingNextPage } = infiniteQuery;
 
-export default function PostList({posts, onDelete, lastElementRef, onOpenPost}: PropsList) {
     return (
-        <ul className="post-list">
-            {posts.map((post, index) => {
-                const isLastElement = index === posts.length - 1;
+        <Stack>
+            {visiblePosts.map((post) => (
+                <Card key={post.id} withBorder radius="md" padding="lg">
+                    <Badge variant="light" mb="xs">#{post.id}</Badge>
 
-                return (
-                    <li
-                        key={post.id}
-                        ref={isLastElement ? lastElementRef : null}
-                        className="post-item"
-                    >
-                        <div className="post-item__meta">
-                            <span className="post-item__id">{post.id}</span>
-                        </div>
+                    <Title order={4}>{post.title}</Title>
+                    <Text size="sm" c="dimmed" mt="xs">{post.body}</Text>
 
-                        <h3 className="post-item__title">{post.title}</h3>
-                        <p className="post-item__body">{post.body}</p>
+                    <Group mt="md">
+                        <Button
+                            size="xs"
+                            variant={post.likedByMe ? "filled" : "light"}
+                            disabled={isPendingLike}
+                            onClick={() => likePost(post.id)}
+                        >
+                            {post.likedByMe ? 'Unlike' : 'Like'} ({post.likesCount})
+                        </Button>
 
-                        <div className="post-item__actions">
-                            <button className="btn btn--danger" onClick={() => onDelete(post.id)}>
-                                Delete
-                            </button>
-                            <button className="btn btn--secondary" onClick={() => onOpenPost(post.id)}>
-                                Open
-                            </button>
-                        </div>
-                    </li>
-                );
-            })}
-        </ul>
-        
+                        <Button size="xs" variant="default" onClick={() => onOpenPost(post.id)}>
+                            Open
+                        </Button>
+
+                        <Button
+                            size="xs"
+                            color="red"
+                            variant="outline"
+                            disabled={pendingDelete}
+                            onClick={() => mutateDeletePost(post.id)}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
+
+                    {errorDelete && <Text c="red" size="sm" mt="xs">Error delete</Text>}
+                </Card>
+            ))}
+
+            <Button
+                variant="default"
+                onClick={() => fetchNextPage()}
+                disabled={!hasNextPage}
+                loading={isFetchingNextPage}
+            >
+                {hasNextPage ? 'Load more' : 'No more posts'}
+            </Button>
+        </Stack>
     )
 }
